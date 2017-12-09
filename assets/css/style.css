@@ -1,0 +1,44 @@
+body 
+{
+margin-top: 5vh;
+margin-right: 1vh;
+margin-left: 1vh;
+/*background: url("../img/trainstation.jpg") no-repeat center center fixed; */
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+
+header 
+{
+height: 15vh;
+background: #37474f;
+border-radius: 1vh;
+filter:alpha(opacity=80);
+-moz-opacity:0.7;
+-khtml-opacity: 0.7;
+opacity: 0.7;
+font-family: 'Montserrat', sans-serif;
+margin-bottom: 3vh;
+}
+
+h1
+{
+	color: white;
+	text-decoration: bold;
+	text-align: center;
+	vertical-align: center;
+	font-size: 6vh;
+}
+
+tr {
+   line-height: 1vh;
+   min-height: 1vh;
+   height: 1vh;
+}
+
+.dropdown {
+  display: inline-block;
+}

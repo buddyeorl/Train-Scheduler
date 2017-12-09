@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="assets/css/style.css">
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Train Scheduler</title>
+</head>
+<body>
+	<header>
+		<h1>Train Scheduler</h1>
+	</header>
+
+<container>
+	<div class="row justify-content-md-center">
+		<div class="col-8">
+			<table class="table table-hover">
+			  <thead class="thead-dark">
+			  	<tr class="table">
+			  	<th scope="col">Train Schedule</th>
+			  	</tr>
+			    <tr>
+			      <th scope="col" >#</th>
+			      <th scope="col" >Train Name</th>
+			      <th scope="col" >Destination</th>
+			      <th scope="col" >Frequency(min)</th>
+			      <th scope="col" >Next Arrival</th>
+			      <th scope="col">Minutes Away</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr class="table-light">
+			      <th scope="row">1</th>
+			      <td>Trenton Express</td>
+			      <td>Trenton</td>
+			      <td>25</td>
+			      <td>05:35PM</td>
+			      <td>10</td>
+			    </tr>
+			  </tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row justify-content-md-center">
+		<div class="col-8">
+			<table class="table table-hover">
+			  <thead class="thead-dark">
+			  	<tr class="table">
+			  	<th scope="col">Add Train</th>
+			  	</tr>
+			  </thead>
+			</table>
+			<form>
+			  <div class="form-group col-10">
+			    <label for="trainName">Train Name</label>
+			    <input type="trainName" class="form-control" id="trainNameInput" aria-describedby="nameHelp" placeholder="Enter the train name">
+			  </div>
+			  <div class="form-group col-10">
+			    <label for="destination">Destination</label>
+			    <input type="destination" class="form-control" id="destination" aria-describedby="destinationHelp" placeholder="Enter the train destination">
+			  </div>
+				<div class="form-group col-10">
+			    	<label for="firstTime">First Train Time (HH:mm - Military time)</label>
+			    	<br>
+					<div class="dropdown" id="hoursMain">
+						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="hoursButton">
+							Hours
+						</button>:
+
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="hours">
+						</div>
+					</div>
+					<div class="dropdown" id="minutesMain">
+						<button class="btn btn-secondary dropdown-toggle" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="minutesButton">
+							Minutes
+						</button>
+
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="minutes">
+						</div>
+					</div>
+				</div>
+			
+
+
+
+
+			  <div class="form-group col-10">
+			    <label for="frequency">Frequency(min)</label>
+			    <input type="frequency" class="form-control" id="frequency" aria-describedby="frequencyHelp" placeholder="Frequency">
+			  </div>
+			  <button type="submit" class="btn btn-primary" id="addTrain">Submit</button>
+			</form>
+		</div>
+	</div>
+</container>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+<script src="assets/js/logic.js"></script>
+</body>
+</html>

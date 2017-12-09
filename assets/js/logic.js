@@ -16,29 +16,81 @@ firebase.initializeApp(config);
 
 // Create a variable to reference the database.
 var database = firebase.database();
-$("tbody").html("");
 
 database.ref().on("value", function(snapshot) {
+	y = Object.values(snapshot.val());
+	y= Object.values(y[0]);
+	minutesLeftUpdater(y); // IMPORTANT when updating the database values inside "value" callback, use a function to update the values to prevent a Callback Hell
+	var yLength = y.length;
+	$("#trains").html("");
+	for (var i=0; i< yLength;i++)
+	{
+		console.log(y[i]); // accessing properties in object
+		console.log(yLength); // accessing length of object
+		console.log(Object.values(y[i]).destination);
+		//$("#trains").append('<tr class="table-light" id=item'+ i +' >');
+		//$("#item" + i).append('<th scope="row">'+ i +'</th>');
+		console.log("building " + i)
+		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
+		{
+			console.log("here" + Object.values(y[i])[j]);// access values in deeper array
 
-	var x = Object.values(snapshot.val());
-	var xLength = Object.values(snapshot.val()).length;
+		//		$("#item" + i).append('<td>'+Object.values(y[i])[j]+ '</td>');
+		}
+
+	}
+updateHtmlTimeLeft(y);
+setInterval(function(){minutesLeftUpdater(y);}, 60000);
+
+});
+//=========================================Minutes Left Update ==========================//
+function minutesLeftUpdater(x){
+	console.log("UPDATING....");
+	var xLength = x.length;
+	$("#trains").html("");
 	for (var i=0; i< xLength;i++)
 	{
 		console.log(x[i]); // accessing properties in object
 		console.log(xLength); // accessing length of object
-		$("tbody").append('<tr class="table-light" id=item'+ i +' >');
-		$("#item" + i).append('<th scope="row">'+ i +'</th>');
-		for (var j=0; j< Object.values(x[i])[0].length; j++)
+		console.log("building " + i)
+		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
 		{
-			console.log(Object.values(x[i])[0][j]);// access values in deeper array
-			$("#item" + i).append('<td>'+Object.values(x[i])[0][j]+ '</td>');
+			console.log("here" + Object.values(x[i])[j]);// access values in deeper array
+			if (j === 4)
+			{
+				var [nextArrival,minutesLeft] = timeLeft(Object.values(x[i])[5], Object.values(x[i])[6], Object.values(x[i])[2]);
+				console.log(nextArrival);
+				database.ref("trainSchedule/" + Object.values(x[i])[0]).update({dArrival:nextArrival,eMinutesLeft:minutesLeft, });
+			}else
+			{
+			}
 		}
 
 	}
-//setInterval(timer, 60000)
-console.log(firebase.database.ServerValue.TIMESTAMP);
+	updateHtmlTimeLeft(x);
+}
 
-});
+function updateHtmlTimeLeft(x)
+{
+	console.log("UPDATING..HTML");
+	var xLength = x.length;
+	$("#trains").html("");
+	for (var i=0; i< xLength;i++)
+	{
+		console.log(x[i]); // accessing properties in object
+		console.log(xLength); // accessing length of object
+		console.log("building " + i)
+		$("#trains").append('<tr class="table-light" id=item'+ i +' >');
+		$("#item" + i).append('<th scope="row">'+ i +'</th>');
+		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
+		{
+			console.log("here" + Object.values(x[i])[j]);// access values in deeper array
+				$("#item" + i).append('<td>'+Object.values(x[i])[j]+ '</td>');
+		}
+
+	}
+}
+
 //=========================================Dynamically create the dropdown menu items for the time ==========================//
 function createDropDownMenu()
 {
@@ -101,6 +153,9 @@ function timeLeft(HH,MM, freq)
 	var today = new Date();
 	localTimeToMinutes=today.getHours()*60 + today.getMinutes();
 	frequency = freq;
+	do{
+		nthoursToMinutes = nthoursToMinutes - freq
+	} while (localTimeToMinutes < nthoursToMinutes)
 	minutesLeft = frequency - (Math.abs(nthoursToMinutes - localTimeToMinutes)%frequency);
 
 
@@ -147,17 +202,17 @@ function timeLeft(HH,MM, freq)
 return [result , minutesLeft];
 }
 //======================================================//
-// Timer to update minutes left here
+// Timer to update minutes left
 
 
 function timer() 
 {
-	timeLeft--;
-	console.log("secs passed " + (timeLeft - 5));
-	timeChecker();
-	isWin();
+	minutesLeft--;
+	console.log("secs passed " + minutesLeft);
 }
 
+
+//======================================================//
 
 //======================================================//
 
@@ -183,14 +238,12 @@ $("#addTrain").on("click", function(){
 	var firstTime = HH + ":" + MM;
 	var frequency = parseInt($("#frequency").val().trim());
 	var [nextArrival,minutesLeft] = timeLeft(HH, MM, frequency)
-	var newTrain = [trainName,destination,frequency, nextArrival,minutesLeft,firstTime];
-	trainScheduleFull.push(newTrain);
+	var newTrain = [trainName,destination,frequency, nextArrival,minutesLeft,HH,MM,firstTime];
     // Save the new price in Firebase
-    database.ref().push({
-      train: newTrain,
+    database.ref("trainSchedule/" +trainName).set({
+      aName:trainName,bDestination:destination,cFrequency:frequency, dArrival:nextArrival,eMinutesLeft:minutesLeft,fHours:HH,gMinutes:MM,hFirstTime:firstTime,
     });
 
-console.log(trainScheduleFull)
 
 	console.log(new Date(2017,12,05).valueOf());
 
@@ -201,7 +254,5 @@ console.log(trainScheduleFull)
 // ----------------------------------------------------------------
 // At the page load and subsequent value changes, get a snapshot of the local data.
 // This function allows you to update your page in real-time when the values within the firebase node bidderData changes
-database.ref().on("value", function(snapshot) {
 
-});
 

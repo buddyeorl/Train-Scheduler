@@ -1,7 +1,44 @@
-var train=[];
+var trainScheduleFull=[];
 var count=0;
 var HH; //Hours 
 var MM; //Minutes
+
+// Initialize Firebase
+var config = {
+apiKey: "AIzaSyAJ5VZIm-AJdQprYcJ_umBRJShXJlsgYyg",
+authDomain: "trainscheduler-bf637.firebaseapp.com",
+databaseURL: "https://trainscheduler-bf637.firebaseio.com",
+projectId: "trainscheduler-bf637",
+storageBucket: "",
+messagingSenderId: "539309675661"
+};
+firebase.initializeApp(config);
+
+// Create a variable to reference the database.
+var database = firebase.database();
+$("tbody").html("");
+
+database.ref().on("value", function(snapshot) {
+
+	var x = Object.values(snapshot.val());
+	var xLength = Object.values(snapshot.val()).length;
+	for (var i=0; i< xLength;i++)
+	{
+		console.log(x[i]); // accessing properties in object
+		console.log(xLength); // accessing length of object
+		$("tbody").append('<tr class="table-light" id=item'+ i +' >');
+		$("#item" + i).append('<th scope="row">'+ i +'</th>');
+		for (var j=0; j< Object.values(x[i])[0].length; j++)
+		{
+			console.log(Object.values(x[i])[0][j]);// access values in deeper array
+			$("#item" + i).append('<td>'+Object.values(x[i])[0][j]+ '</td>');
+		}
+
+	}
+//setInterval(timer, 60000)
+console.log(firebase.database.ServerValue.TIMESTAMP);
+
+});
 //=========================================Dynamically create the dropdown menu items for the time ==========================//
 function createDropDownMenu()
 {
@@ -110,13 +147,21 @@ function timeLeft(HH,MM, freq)
 return [result , minutesLeft];
 }
 //======================================================//
+// Timer to update minutes left here
+
+
+function timer() 
+{
+	timeLeft--;
+	console.log("secs passed " + (timeLeft - 5));
+	timeChecker();
+	isWin();
+}
+
+
 //======================================================//
 
 createDropDownMenu();
-
-
-
-
 
 $("#hoursMain").on("click",'a' ,function(){
 HH = parseInt($(this).attr("id").split("s").pop())
@@ -139,18 +184,24 @@ $("#addTrain").on("click", function(){
 	var frequency = parseInt($("#frequency").val().trim());
 	var [nextArrival,minutesLeft] = timeLeft(HH, MM, frequency)
 	var newTrain = [trainName,destination,frequency, nextArrival,minutesLeft,firstTime];
+	trainScheduleFull.push(newTrain);
+    // Save the new price in Firebase
+    database.ref().push({
+      train: newTrain,
+    });
 
-	train.push(newTrain);
-	for (var i = 0; (i<train.length);i++)
-	{
-		$("tbody").append('<tr class="table-light" id=item'+ i +' >');
-		$("#item" + i).append('<th scope="row">'+ i +'</th>');
-		for (var j= 0; j<(train[i].length -1);j++)
-		{
-			$("#item" + i).append('<td>'+train[i][j]+ '</td>');
-		}
-	}
+console.log(trainScheduleFull)
+
 	console.log(new Date(2017,12,05).valueOf());
+
+});
+
+
+
+// ----------------------------------------------------------------
+// At the page load and subsequent value changes, get a snapshot of the local data.
+// This function allows you to update your page in real-time when the values within the firebase node bidderData changes
+database.ref().on("value", function(snapshot) {
 
 });
 

@@ -27,7 +27,6 @@ database.ref().on("value", function(snapshot) {
 	{
 		console.log(y[i]); // accessing properties in object
 		console.log(yLength); // accessing length of object
-		console.log(Object.values(y[i]).destination);
 		//$("#trains").append('<tr class="table-light" id=item'+ i +' >');
 		//$("#item" + i).append('<th scope="row">'+ i +'</th>');
 		console.log("building " + i)
@@ -81,7 +80,7 @@ function updateHtmlTimeLeft(x)
 		console.log(xLength); // accessing length of object
 		console.log("building " + i)
 		$("#trains").append('<tr class="table-light" id=item'+ i +' >');
-		$("#item" + i).append('<th scope="row">'+ i +'</th>');
+		$("#item" + i).append('<th scope="row"><a href="#" id="deletes' + i + '"><img src="assets/img/glyphicons-17-bin.png" alt=""></a><a href="#" id="edits' + i + '"><img src="assets/img/glyphicons-31-pencil.png" alt=""></a>' +'</th>');
 		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
 		{
 			console.log("here" + Object.values(x[i])[j]);// access values in deeper array
@@ -132,10 +131,29 @@ function setTime(whichButton, XX)
 	console.log(XX);
 	if (XX < 10)
 	{
-		$(whichButton).html("0" + XX); // to display format as 00 01 etc
+		$(whichButton).html("0" + XX); // to display format as 00 01 02 03etc
 	} else
 	{
 		$(whichButton).html(XX);
+	}
+}
+
+//======================================================//
+
+//=========================================Dynamically Delete or Edit a button when right icon is clicked ==========================//
+function deleteEdit(action, id)
+{
+	console.log(action);
+	if (action.search("delete"))
+	{
+		console.log("should edit " + action);
+	} else
+	{
+		var firstValue = $("#item" + id).find("td:first").html();  // this line will get the first  child in the table which is the name of train.
+		console.log(firstValue);
+		var deleteItem = firebase.database().ref("trainSchedule/"+firstValue);
+		deleteItem.remove();
+		console.log("should delete" + action);
 	}
 }
 
@@ -201,16 +219,6 @@ function timeLeft(HH,MM, freq)
 
 return [result , minutesLeft];
 }
-//======================================================//
-// Timer to update minutes left
-
-
-function timer() 
-{
-	minutesLeft--;
-	console.log("secs passed " + minutesLeft);
-}
-
 
 //======================================================//
 
@@ -232,24 +240,40 @@ setTime("#minutesButton", MM);
 
 $("#addTrain").on("click", function(){
 	event.preventDefault();
-	$("tbody").html("");
 	var trainName = $("#trainNameInput").val().trim();
 	var destination = $("#destination").val().trim();
-	var firstTime = HH + ":" + MM;
 	var frequency = parseInt($("#frequency").val().trim());
-	var [nextArrival,minutesLeft] = timeLeft(HH, MM, frequency)
-	var newTrain = [trainName,destination,frequency, nextArrival,minutesLeft,HH,MM,firstTime];
-    // Save the new price in Firebase
-    database.ref("trainSchedule/" +trainName).set({
-      aName:trainName,bDestination:destination,cFrequency:frequency, dArrival:nextArrival,eMinutesLeft:minutesLeft,fHours:HH,gMinutes:MM,hFirstTime:firstTime,
-    });
-
-
-	console.log(new Date(2017,12,05).valueOf());
+	console.log(frequency);
+	console.log(HH);
+	console.log(MM);
+	if (trainName !== "" && destination !== "" && HH !== undefined && MM !== undefined && frequency !== NaN)
+	{
+		console.log("inside");
+		var firstTime = HH + ":" + MM;
+		var [nextArrival,minutesLeft] = timeLeft(HH, MM, frequency);
+		var newTrain = [trainName,destination,frequency, nextArrival,minutesLeft,HH,MM,firstTime];
+	    // Save the new price in Firebase
+	    database.ref("trainSchedule/" +trainName).set({
+	      aName:trainName,bDestination:destination,cFrequency:frequency, dArrival:nextArrival,eMinutesLeft:minutesLeft,fHours:HH,gMinutes:MM,hFirstTime:firstTime,
+	    });
+	    $("#trainNameInput").val("");
+	    $("#destination").val("");
+	    $("#frequency").val("");
+	    $("#minutesButton").html("Hours");
+		$("#hoursButton").html("Minutes");
+	} else
+	{
+		alert("Incomplete information, please complete the form before clicking SUBMIT");
+	}
 
 });
 
-
+$("#trains").on("click",'a' ,function(){
+ var i = parseInt($(this).attr("id").split("s").pop())
+// setTime("#hoursButton", HH);
+console.log($(this).attr("id"), i);
+deleteEdit($(this).attr("id"), i);
+});
 
 // ----------------------------------------------------------------
 // At the page load and subsequent value changes, get a snapshot of the local data.

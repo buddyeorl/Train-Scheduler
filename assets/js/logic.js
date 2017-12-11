@@ -3,6 +3,7 @@ var count=0;
 var HH; //Hours 
 var MM; //Minutes
 var editDeleteItem; // this will store the name of the item that is being deleted or edited 
+var validKeys=[48,49,50,51,52,53,54,55,56,57];
 // Initialize Firebase
 var config = {
 apiKey: "AIzaSyAJ5VZIm-AJdQprYcJ_umBRJShXJlsgYyg",
@@ -235,8 +236,21 @@ function timeLeft(HH,MM, freq)
 return [result , minutesLeft];
 }
 
-//======================================================//
+function checkIfNumber(pressedKey, inputBox) // pressed key is the key pressed inside a given input box, inputBox is the focused input box you are checking
+{
+	console.log("pressing" + pressedKey);
+	if (validKeys.indexOf(pressedKey) === -1){
+  	console.log(validKeys.indexOf(pressedKey));
+  	$(inputBox).val("");
+  	console.log("pressing" + pressedKey);
+  }
+}
 
+
+
+
+//======================================================//
+// APP BEGINS HERE
 //======================================================//
 
 createDropDownMenu();
@@ -261,8 +275,12 @@ $("#addTrain").on("click", function(){
 	console.log(frequency);
 	console.log(HH);
 	console.log(MM);
-	if (trainName !== "" && destination !== "" && HH !== undefined && MM !== undefined && frequency !== NaN)
+	if (trainName !== "" && destination !== "" && HH !== undefined && MM !== undefined && isNaN(frequency) === false && frequency !== "")
 	{
+		if (isNaN(frequency) || frequency === 0)
+		{
+			frequency = 10;	
+		} 
 		console.log("inside");
 		var firstTime = HH + ":" + MM;
 		var [nextArrival,minutesLeft] = timeLeft(HH, MM, frequency);
@@ -278,7 +296,7 @@ $("#addTrain").on("click", function(){
 		$("#hoursButton").html("Minutes");
 	} else
 	{
-		alert("Incomplete information, please complete the form before clicking SUBMIT");
+		alert("Incomplete information!, please complete the form before clicking SUBMIT");
 	}
 
 });
@@ -293,45 +311,63 @@ deleteEdit($(this).attr("id"), positionToEditDelete);
 
 //the event below will edit some information in the selected train once the edit button has been clicked
 $("#editButton").on("click", 'button', function(){
-var name = $("#editName1").val();
-var destination = $("#editDestination1").val();
-var frequency = $("#editFrequency").val();
+var name = $("#editName1").val().trim();
+var destination = $("#editDestination1").val().trim();
+var frequency = parseInt($("#editFrequency").val().trim());
 var valueToEdit;
 var arrival;
 var minutesLeft;
 var hours;
 var minutes;
 var firstTrain;
-database.ref("trainSchedule/" + editDeleteItem).once('value').then(function(snapshot) {
-	valueToEdit = snapshot.val();
-	arrival =valueToEdit.dArrival;
-	minutesLeft =valueToEdit.eMinutesLeft;
-	hours = valueToEdit.fHours;
-	minutes = valueToEdit.gMinutes
-	firstTrain = valueToEdit.hFirstTime
-    database.ref("trainSchedule/" + name).set({
-    aName:name,bDestination:destination,cFrequency:frequency,dArrival:arrival,eMinutesLeft:minutesLeft,fHours:hours,gMinutes:minutes,hFirstTime:firstTrain,
-    });
-	console.log(snapshot.val());
-	console.log("name :" + name);
-	console.log("destination: " +destination);
-	console.log("frequency: " + frequency);
-	console.log(valueToEdit);
-	var deleteItem = firebase.database().ref("trainSchedule/"+editDeleteItem);
-	deleteItem.remove();
 
-$("#editName").html("Train Name");
-$("#editDestination").html("Destination");
-$("#editFreq").html("Frequency");
-$("#editButton").html("Delete/Edit");
+if (name !== "" && destination !== "" && !(isNaN(frequency)) && frequency !== "")
+{
+	if (isNaN(frequency) || frequency === 0)
+	{
+		frequency = 10;	
+	} 
+	database.ref("trainSchedule/" + editDeleteItem).once('value').then(function(snapshot) {
+		valueToEdit = snapshot.val();
+		arrival =valueToEdit.dArrival;
+		minutesLeft =valueToEdit.eMinutesLeft;
+		hours = valueToEdit.fHours;
+		minutes = valueToEdit.gMinutes
+		firstTrain = valueToEdit.hFirstTime
+	    database.ref("trainSchedule/" + name).set({
+	    aName:name,bDestination:destination,cFrequency:frequency,dArrival:arrival,eMinutesLeft:minutesLeft,fHours:hours,gMinutes:minutes,hFirstTime:firstTrain,
+	    });
+		console.log(snapshot.val());
+		console.log("name :" + name);
+		console.log("destination: " +destination);
+		console.log("frequency: " + frequency);
+		console.log(valueToEdit);
+		var deleteItem = firebase.database().ref("trainSchedule/"+editDeleteItem);
+		deleteItem.remove();
+		$("#editName").html("Train Name");
+		$("#editDestination").html("Destination");
+		$("#editFreq").html("Frequency");
+		$("#editButton").html("Delete/Edit");
+	});
+} else
+{
+	console.log(isNaN(frequency) , frequency);
+	alert("Incomplete information!, please complete the form before clicking EDIT");
+
+}
 
 });
 
 
+$("#frequency").on("keyup",function() {
+checkIfNumber(event.which, "#frequency");//check if numbers have been added, if string is added, input box content will be deleted
+});
+
+$("#editFreq").on("keyup","input",function() {
+checkIfNumber(event.which, "#editFrequency");//check if numbers have been added, if string is added, input box content will be deleted
 });
 
 // ----------------------------------------------------------------
-// At the page load and subsequent value changes, get a snapshot of the local data.
-// This function allows you to update your page in real-time when the values within the firebase node bidderData changes
+
 
 

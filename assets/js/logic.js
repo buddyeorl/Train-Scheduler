@@ -252,7 +252,8 @@ function checkIfNumber(pressedKey, inputBox) // pressed key is the key pressed i
 //======================================================//
 // APP BEGINS HERE
 //======================================================//
-
+$("#alert1").hide();
+$("#alert2").hide();
 createDropDownMenu();
 
 $("#hoursMain").on("click",'a' ,function(){
@@ -277,6 +278,7 @@ $("#addTrain").on("click", function(){
 	console.log(MM);
 	if (trainName !== "" && destination !== "" && HH !== undefined && MM !== undefined && isNaN(frequency) === false && frequency !== "")
 	{
+		$("#alert2").hide();
 		if (isNaN(frequency) || frequency === 0)
 		{
 			frequency = 10;	
@@ -296,7 +298,7 @@ $("#addTrain").on("click", function(){
 		$("#hoursButton").html("Minutes");
 	} else
 	{
-		alert("Incomplete information!, please complete the form before clicking SUBMIT");
+		$("#alert2").show();//alert("Incomplete information!, please complete the form before clicking SUBMIT");
 	}
 
 });
@@ -323,6 +325,7 @@ var firstTrain;
 
 if (name !== "" && destination !== "" && !(isNaN(frequency)) && frequency !== "")
 {
+	$("#alert1").hide();
 	if (isNaN(frequency) || frequency === 0)
 	{
 		frequency = 10;	
@@ -352,7 +355,7 @@ if (name !== "" && destination !== "" && !(isNaN(frequency)) && frequency !== ""
 } else
 {
 	console.log(isNaN(frequency) , frequency);
-	alert("Incomplete information!, please complete the form before clicking EDIT");
+	$("#alert1").show();
 
 }
 

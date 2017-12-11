@@ -2,7 +2,7 @@ var trainScheduleFull=[];
 var count=0;
 var HH; //Hours 
 var MM; //Minutes
-
+var editDeleteItem; // this will store the name of the item that is being deleted or edited 
 // Initialize Firebase
 var config = {
 apiKey: "AIzaSyAJ5VZIm-AJdQprYcJ_umBRJShXJlsgYyg",
@@ -139,19 +139,34 @@ function setTime(whichButton, XX)
 }
 
 //======================================================//
+//=========================================Dynamically Delete or Edit a button when right icon is clicked ==========================//
+function textBox()
+{
+$("#editName").html();
+$("#editName").html('<input type="trainName" class="form-control" id="editName1" aria-describedby="nameHelp" placeholder="Edit Name">');
+$("#editDestination").html();
+$("#editDestination").html('<input type="destination" class="form-control" id="editDestination1" aria-describedby="destinationHelp" placeholder="Edit Destination">');
+$("#editFreq").html();
+$("#editFreq").html('<input type="frequency" class="form-control" id="editFrequency" aria-describedby="frequencyHelp" placeholder="Frequency">');
+$("#editButton").html();
+$("#editButton").html('<button type="submit" class="btn btn-primary" id="editTrain">Edit</button>');
+}
 
 //=========================================Dynamically Delete or Edit a button when right icon is clicked ==========================//
 function deleteEdit(action, id)
 {
+	// global Variable editDeleteItem is the name of the variable that will store the name of the selected item (once user click on edit or delete icon) has in the database for edit or delete purposes.
+	editDeleteItem = $("#item" + id).find("td:first").html();  // this line will get the first  child in the table which is the name of train.
+	console.log("editing : " + editDeleteItem);
 	console.log(action);
 	if (action.search("delete"))
 	{
 		console.log("should edit " + action);
+		textBox(); // create input box when "edit icon has been selected"
+
 	} else
 	{
-		var firstValue = $("#item" + id).find("td:first").html();  // this line will get the first  child in the table which is the name of train.
-		console.log(firstValue);
-		var deleteItem = firebase.database().ref("trainSchedule/"+firstValue);
+		var deleteItem = firebase.database().ref("trainSchedule/"+editDeleteItem);
 		deleteItem.remove();
 		console.log("should delete" + action);
 	}
@@ -268,11 +283,51 @@ $("#addTrain").on("click", function(){
 
 });
 
+// the event below will call the deleteEdit function when the edit or delete icon is clicked.
 $("#trains").on("click",'a' ,function(){
- var i = parseInt($(this).attr("id").split("s").pop())
+var positionToEditDelete = parseInt($(this).attr("id").split("s").pop()) // store the position of the item in the database e.g. deletes0 is the first item in the database, edit20 is the 20th in the database
 // setTime("#hoursButton", HH);
-console.log($(this).attr("id"), i);
-deleteEdit($(this).attr("id"), i);
+console.log($(this).attr("id"), positionToEditDelete);
+deleteEdit($(this).attr("id"), positionToEditDelete);
+});
+
+//the event below will edit some information in the selected train once the edit button has been clicked
+$("#editButton").on("click", 'button', function(){
+var name = $("#editName1").val();
+var destination = $("#editDestination1").val();
+var frequency = $("#editFrequency").val();
+var valueToEdit;
+var arrival;
+var minutesLeft;
+var hours;
+var minutes;
+var firstTrain;
+database.ref("trainSchedule/" + editDeleteItem).once('value').then(function(snapshot) {
+	valueToEdit = snapshot.val();
+	arrival =valueToEdit.dArrival;
+	minutesLeft =valueToEdit.eMinutesLeft;
+	hours = valueToEdit.fHours;
+	minutes = valueToEdit.gMinutes
+	firstTrain = valueToEdit.hFirstTime
+    database.ref("trainSchedule/" + name).set({
+    aName:name,bDestination:destination,cFrequency:frequency,dArrival:arrival,eMinutesLeft:minutesLeft,fHours:hours,gMinutes:minutes,hFirstTime:firstTrain,
+    });
+	console.log(snapshot.val());
+	console.log("name :" + name);
+	console.log("destination: " +destination);
+	console.log("frequency: " + frequency);
+	console.log(valueToEdit);
+	var deleteItem = firebase.database().ref("trainSchedule/"+editDeleteItem);
+	deleteItem.remove();
+
+$("#editName").html("Train Name");
+$("#editDestination").html("Destination");
+$("#editFreq").html("Frequency");
+$("#editButton").html("Delete/Edit");
+
+});
+
+
 });
 
 // ----------------------------------------------------------------

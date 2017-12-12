@@ -4,6 +4,7 @@ var HH; //Hours
 var MM; //Minutes
 var editDeleteItem; // this will store the name of the item that is being deleted or edited 
 var validKeys=[48,49,50,51,52,53,54,55,56,57];
+var y;
 // Initialize Firebase
 var config = {
 apiKey: "AIzaSyAJ5VZIm-AJdQprYcJ_umBRJShXJlsgYyg",
@@ -19,7 +20,10 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 database.ref().on("value", function(snapshot) {
+
+	console.log("im here waiting to be fixed");
 	y = Object.values(snapshot.val());
+	console.log("console.log this: " +y);
 	y= Object.values(y[0]);
 	minutesLeftUpdater(y); // IMPORTANT when updating the database values inside "value" callback, use a function to update the values to prevent a Callback Hell
 	var yLength = y.length;
@@ -30,7 +34,7 @@ database.ref().on("value", function(snapshot) {
 		console.log(yLength); // accessing length of object
 		//$("#trains").append('<tr class="table-light" id=item'+ i +' >');
 		//$("#item" + i).append('<th scope="row">'+ i +'</th>');
-		console.log("building " + i)
+		console.log("building 1" + i)
 		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
 		{
 			console.log("here" + Object.values(y[i])[j]);// access values in deeper array
@@ -52,7 +56,7 @@ function minutesLeftUpdater(x){
 	{
 		console.log(x[i]); // accessing properties in object
 		console.log(xLength); // accessing length of object
-		console.log("building " + i)
+		console.log("building 3" + i)
 		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
 		{
 			console.log("here" + Object.values(x[i])[j]);// access values in deeper array
@@ -79,7 +83,7 @@ function updateHtmlTimeLeft(x)
 	{
 		console.log(x[i]); // accessing properties in object
 		console.log(xLength); // accessing length of object
-		console.log("building " + i)
+		console.log("building 2" + i)
 		$("#trains").append('<tr class="table-light" id=item'+ i +' >');
 		$("#item" + i).append('<th scope="row"><a href="#" id="deletes' + i + '"><img src="assets/img/glyphicons-17-bin.png" alt=""></a><a href="#" id="edits' + i + '"><img src="assets/img/glyphicons-31-pencil.png" alt=""></a>' +'</th>');
 		for (var j=0; j< 5; j++) // -3 BECAUSE ARRAY HAS 7 INDEXED ITEMS AND WE WANT TO READ ONLY 4
@@ -179,19 +183,21 @@ function deleteEdit(action, id)
 //=========================================Get Time Left for next train ==========================//
 function timeLeft(HH,MM, freq)
 {
-	var trainFirstTime = new Date('0 00:50:00'); // I used this to work on the Date Format
+	var trainFirstTime = new Date(); // I used this to work on the Date Format
 	trainFirstTime.setHours(HH);
+	console.log(trainFirstTime);
 	trainFirstTime.setMinutes(MM);
-	nthoursToMinutes = (trainFirstTime.getHours()*60) + trainFirstTime.getMinutes();
-	ntminutes =trainFirstTime.getMinutes();
+	var nthoursToMinutes = (trainFirstTime.getHours()*60) + trainFirstTime.getMinutes();
+	var ntminutes =trainFirstTime.getMinutes();
 	var today = new Date();
-	localTimeToMinutes=today.getHours()*60 + today.getMinutes();
-	frequency = freq;
+	var localTimeToMinutes=today.getHours()*60 + today.getMinutes();
+	var frequency = freq;
 	do{
-		nthoursToMinutes = nthoursToMinutes - freq
+		nthoursToMinutes = nthoursToMinutes - freq;
 	} while (localTimeToMinutes < nthoursToMinutes)
-	minutesLeft = frequency - (Math.abs(nthoursToMinutes - localTimeToMinutes)%frequency);
-
+	var minutesLeft = frequency - (Math.abs(nthoursToMinutes - localTimeToMinutes))%frequency;
+	console.log("just added this " + frequency);
+	console.log("just added this " + minutesLeft);
 
 	if ((today.getMinutes() + minutesLeft) > 59)
 	{
@@ -252,6 +258,7 @@ function checkIfNumber(pressedKey, inputBox) // pressed key is the key pressed i
 //======================================================//
 // APP BEGINS HERE
 //======================================================//
+$( document ).ready(function() {
 $("#alert1").hide();
 $("#alert2").hide();
 createDropDownMenu();
@@ -269,7 +276,6 @@ setTime("#minutesButton", MM);
 
 
 $("#addTrain").on("click", function(){
-	event.preventDefault();
 	var trainName = $("#trainNameInput").val().trim();
 	var destination = $("#destination").val().trim();
 	var frequency = parseInt($("#frequency").val().trim());
@@ -337,9 +343,6 @@ if (name !== "" && destination !== "" && !(isNaN(frequency)) && frequency !== ""
 		hours = valueToEdit.fHours;
 		minutes = valueToEdit.gMinutes
 		firstTrain = valueToEdit.hFirstTime
-	    database.ref("trainSchedule/" + name).set({
-	    aName:name,bDestination:destination,cFrequency:frequency,dArrival:arrival,eMinutesLeft:minutesLeft,fHours:hours,gMinutes:minutes,hFirstTime:firstTrain,
-	    });
 		console.log(snapshot.val());
 		console.log("name :" + name);
 		console.log("destination: " +destination);
@@ -351,6 +354,9 @@ if (name !== "" && destination !== "" && !(isNaN(frequency)) && frequency !== ""
 		$("#editDestination").html("Destination");
 		$("#editFreq").html("Frequency");
 		$("#editButton").html("Delete/Edit");
+	    database.ref("trainSchedule/" + name).set({
+	    aName:name,bDestination:destination,cFrequency:frequency,dArrival:arrival,eMinutesLeft:minutesLeft,fHours:hours,gMinutes:minutes,hFirstTime:firstTrain,
+	    });
 	});
 } else
 {
@@ -369,7 +375,7 @@ checkIfNumber(event.which, "#frequency");//check if numbers have been added, if 
 $("#editFreq").on("keyup","input",function() {
 checkIfNumber(event.which, "#editFrequency");//check if numbers have been added, if string is added, input box content will be deleted
 });
-
+});
 // ----------------------------------------------------------------
 
 
